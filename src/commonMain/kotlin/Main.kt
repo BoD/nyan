@@ -6,7 +6,7 @@ import org.jraf.nyannative.tray.Tray
 
 fun main(av: Array<String>) {
     CoroutineWorker.execute {
-        val resultCode = executeCommand(av.joinToString(" "))
+        val resultCode = executeCommand(av.asList())
         exitProcess(resultCode)
     }
     Tray().showTray()

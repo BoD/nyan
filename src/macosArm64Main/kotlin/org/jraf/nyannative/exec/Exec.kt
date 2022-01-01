@@ -10,8 +10,8 @@ import platform.posix.popen
 import platform.posix.posix_errno
 
 // Inspired by https://stackoverflow.com/questions/57123836/
-actual fun executeCommand(command: String): Int {
-    val commandToExecute = "$command 2>&1"
+actual fun executeCommand(command: List<String>): Int {
+    val commandToExecute = "${command.joinToString(" ")} 2>&1"
     // Apparently the error case actually never happens since this actually executes sh. Keeping it anyway just in case
     val fp = popen(commandToExecute, "r") ?: error("Could not execute command: ${posix_errno()}")
     val buffer = ByteArray(4096)
@@ -21,3 +21,15 @@ actual fun executeCommand(command: String): Int {
     }
     return pclose(fp)
 }
+
+//actual fun executeCommand(command: List<String>): Int {
+//    val task = NSTask()
+//    task.executableURL = NSURL.fileURLWithPath("/bin/sh")
+//    task.arguments = listOf("-l", "-c", command.joinToString(" "))
+//    val pipe = NSPipe()
+//    task.standardOutput = pipe
+//    task.standardError = pipe
+//    task.launch()
+//    task.waitUntilExit()
+//    return task.terminationStatus
+//}
