@@ -3,6 +3,7 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key><string>Nyan</string>
+  <key>CFBundleIconFile</key><string>Nyan.icns</string>
   <key>CFBundleIdentifier</key><string>org.jraf.nyan</string>
   <key>CFBundleExecutable</key><string>nyan-server</string>
   <key>CFBundlePackageType</key><string>APPL</string>

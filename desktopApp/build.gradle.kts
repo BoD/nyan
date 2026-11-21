@@ -31,6 +31,10 @@ tasks.register<Sync>("bundleMacApp") {
     filter<ReplaceTokens>("tokens" to mapOf("VERSION" to rootProject.version.toString()))
   }
 
+  from("src/macosMain/resources/Nyan.icns") {
+    into("Contents/Resources")
+  }
+
   from(layout.buildDirectory.file("bin/macosArm64/releaseExecutable/desktopApp.kexe")) {
     into("Contents/MacOS")
     rename { "nyan-server" }
@@ -41,6 +45,7 @@ tasks.register<Sync>("bundleMacApp") {
     include("*.png")
     into("Contents/Resources/images")
   }
+
 
   from(rootProject.layout.projectDirectory.dir("etc/scripts")) {
     into("Contents/Resources/scripts")
