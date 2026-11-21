@@ -4,4 +4,4 @@ set -euo pipefail
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 payload="$(cat)"
 turn_id="$(jq -er '.turn_id' <<<"$payload")"
-"$script_dir/set-idle" "$turn_id"
+"$script_dir/nyan" --idle "$turn_id"

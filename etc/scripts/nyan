@@ -1,25 +1,50 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if (($# == 0)); then
-  printf 'Usage: %s command [args...]\n' "$0" >&2
+usage() {
+  printf 'Usage: %s command [args...]\n       %s --busy <id>\n       %s --idle <id>\n' "$0" "$0" "$0" >&2
   exit 2
-fi
+}
 
-script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+set_state() {
+  local state="$1"
+  local id="$2"
+  curl \
+    --silent \
+    --output /dev/null \
+    --request POST \
+    --header 'content-type: application/json' \
+    --url 'http://localhost:2026/graphql' \
+    --data "{\"query\": \"mutation Set${state}Mutation { set${state}(processId: \\\"$id\\\") { processId } }\"}"
+}
+
+(($# > 0)) || usage
+case "$1" in
+  --busy)
+    (($# == 2)) || usage
+    set_state Busy "$2"
+    exit 0
+    ;;
+  --idle)
+    (($# == 2)) || usage
+    set_state Idle "$2"
+    exit 0
+    ;;
+esac
+
 id="$(uuidgen)"
 
 cleanup() {
   local status=$?
   trap - EXIT
-  if ! "$script_dir/set-idle" "$id" >/dev/null; then
+  if ! set_state Idle "$id"; then
     printf 'Failed to set idle for %s\n' "$id" >&2
   fi
   exit "$status"
 }
 trap cleanup EXIT
 
-if ! "$script_dir/set-busy" "$id" >/dev/null; then
+if ! set_state Busy "$id"; then
   printf 'Failed to set busy for %s\n' "$id" >&2
 fi
 
