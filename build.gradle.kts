@@ -4,5 +4,7 @@ plugins {
   alias(libs.plugins.apollo.execution).apply(false)
 }
 
+version = "1.0.0"
+
 // `./gradlew refreshVersions` to update dependencies
 // `./gradlew bundleMacApp` to bundle the MacOS app. Results in desktopApp/build/macApp/Nyan.app
