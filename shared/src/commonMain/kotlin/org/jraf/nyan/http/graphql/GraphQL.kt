@@ -42,15 +42,15 @@ data class Process(
 )
 
 sealed interface Result {
-  val processId: ProcessId
+  val processId: ProcessId?
 }
 
 data class Success(
-  override val processId: ProcessId,
+  override val processId: ProcessId?,
 ) : Result
 
 data class Error(
-  override val processId: ProcessId,
+  override val processId: ProcessId?,
   val message: String,
 ) : Result
 
@@ -85,6 +85,11 @@ class Mutation(private val busyIds: MutableStateFlow<Set<org.jraf.nyan.app.Proce
     logd("setIdle: processId=$processId")
     busyIds.value = busyIds.value.filter { it.processId.value != processId }.toSet()
     return Success(processId = processId)
+  }
+
+  fun setAllIdle(): Result {
+    busyIds.value = emptySet()
+    return Success(processId = null)
   }
 }
 

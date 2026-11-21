@@ -6,7 +6,7 @@ schema {
 scalar ProcessId
 
 type Error implements Result {
-  processId: ProcessId!
+  processId: ProcessId
 
   message: String!
 }
@@ -15,6 +15,8 @@ type Mutation {
   setBusy(processId: ProcessId!, description: String = null): Result!
 
   setIdle(processId: ProcessId!): Result!
+
+  setAllIdle: Result!
 }
 
 type Process {
@@ -30,9 +32,9 @@ type Query {
 }
 
 type Success implements Result {
-  processId: ProcessId!
+  processId: ProcessId
 }
 
 interface Result {
-  processId: ProcessId!
+  processId: ProcessId
 }

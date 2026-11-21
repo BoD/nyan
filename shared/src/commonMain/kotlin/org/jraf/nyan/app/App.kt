@@ -63,7 +63,7 @@ class App {
           withContext(Dispatchers.Main) {
             tray.setImage(image.toString())
           }
-          delay(120.milliseconds)
+          delay(128.milliseconds)
         }
       }
     }
