@@ -12,13 +12,19 @@ type Error implements Result {
 }
 
 type Mutation {
-  setBusy(processId: ProcessId!): Result!
+  setBusy(processId: ProcessId!, description: String = null): Result!
 
   setIdle(processId: ProcessId!): Result!
 }
 
+type Process {
+  processId: ProcessId!
+
+  description: String
+}
+
 type Query {
-  busyProcessIds: [ProcessId!]!
+  busyProcesses: [Process!]!
 
   isBusy(processId: ProcessId!): Boolean!
 }

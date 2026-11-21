@@ -29,6 +29,7 @@ package org.jraf.nyan.tray
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
+import org.jraf.nyan.VERSION
 import platform.AppKit.NSImage
 import platform.AppKit.NSMenu
 import platform.AppKit.NSMenuItem
@@ -43,16 +44,46 @@ actual fun Tray(): Tray {
     private var statusItem: NSStatusItem? = null
 
     init {
-      val statusBar = NSStatusBar.systemStatusBar
-      statusItem = statusBar.statusItemWithLength(NSVariableStatusItemLength)
+      statusItem = NSStatusBar.systemStatusBar.statusItemWithLength(NSVariableStatusItemLength)
+      setMenuItems(emptyList())
+    }
 
+    override fun setMenuItems(items: List<String>) {
       val menu = NSMenu()
-      val quitItem = NSMenuItem(
-        title = "Quit",
-        action = NSSelectorFromString("terminate:"),
-        keyEquivalent = "q",
+
+      // About
+      menu.addItem(
+        NSMenuItem(
+          title = "BoD Nyan $VERSION - https://JRAF.org",
+          action = null,
+          keyEquivalent = "",
+        ).also { it.enabled = false },
       )
-      menu.addItem(quitItem)
+      menu.addItem(NSMenuItem.separatorItem())
+
+      // Busy processes
+      for (item in items) {
+        menu.addItem(
+          NSMenuItem(
+            title = item,
+            action = null,
+            keyEquivalent = "",
+          ).also { it.enabled = false },
+        )
+      }
+      if (items.isNotEmpty()) {
+        menu.addItem(NSMenuItem.separatorItem())
+      }
+
+      // Quit
+      menu.addItem(
+        NSMenuItem(
+          title = "Quit",
+          action = NSSelectorFromString("terminate:"),
+          keyEquivalent = "q",
+        ),
+      )
+
       statusItem!!.menu = menu
     }
 

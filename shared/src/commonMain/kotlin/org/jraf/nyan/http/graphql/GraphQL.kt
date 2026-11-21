@@ -23,9 +23,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.jraf.nyan.http
+package org.jraf.nyan.http.graphql
 
 import com.apollographql.apollo.execution.StringCoercing
+import com.apollographql.execution.annotation.GraphQLDefault
 import com.apollographql.execution.annotation.GraphQLMutation
 import com.apollographql.execution.annotation.GraphQLQuery
 import com.apollographql.execution.annotation.GraphQLScalar
@@ -34,6 +35,11 @@ import org.jraf.klibnanolog.logd
 
 @GraphQLScalar(StringCoercing::class)
 typealias ProcessId = String
+
+data class Process(
+  val processId: ProcessId,
+  val description: String?,
+)
 
 sealed interface Result {
   val processId: ProcessId
@@ -49,27 +55,42 @@ data class Error(
 ) : Result
 
 @GraphQLQuery
-class Query(private val busyIds: MutableStateFlow<Set<String>>) {
-  fun busyProcessIds(): List<ProcessId> {
-    return busyIds.value.toList()
+class Query(
+  private val busyProcesses: MutableStateFlow<Set<org.jraf.nyan.app.Process>>,
+) {
+  fun busyProcesses(): List<Process> {
+    return busyProcesses.value.map { it.toGraphQLProcess() }
   }
 
   fun isBusy(processId: ProcessId): Boolean {
-    return busyIds.value.contains(processId)
+    return busyProcesses.value.any { it.processId.value == processId }
   }
 }
 
 @GraphQLMutation
-class Mutation(private val busyIds: MutableStateFlow<Set<String>>) {
-  fun setBusy(processId: ProcessId): Result {
-    logd("setBusy: processId=$processId")
-    busyIds.value += processId
+class Mutation(private val busyIds: MutableStateFlow<Set<org.jraf.nyan.app.Process>>) {
+  fun setBusy(
+    processId: ProcessId,
+
+    @GraphQLDefault("null")
+    description: String?,
+  ): Result {
+    val process = org.jraf.nyan.app.Process(org.jraf.nyan.app.ProcessId(processId), description)
+    logd("setBusy: process=$process")
+    busyIds.value = busyIds.value.filter { it.processId.value != processId }.toSet() + process
     return Success(processId = processId)
   }
 
   fun setIdle(processId: ProcessId): Result {
     logd("setIdle: processId=$processId")
-    busyIds.value -= processId
+    busyIds.value = busyIds.value.filter { it.processId.value != processId }.toSet()
     return Success(processId = processId)
   }
+}
+
+private fun org.jraf.nyan.app.Process.toGraphQLProcess(): Process {
+  return Process(
+    processId = processId.value,
+    description = description,
+  )
 }

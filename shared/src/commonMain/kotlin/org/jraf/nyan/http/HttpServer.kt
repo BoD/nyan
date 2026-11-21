@@ -34,51 +34,57 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import org.jraf.klibnanolog.logd
 import org.jraf.nyan.VERSION
+import org.jraf.nyan.app.Process
 import org.jraf.nyan.graphql.NyanExecutableSchemaBuilder
+import org.jraf.nyan.http.graphql.Mutation
+import org.jraf.nyan.http.graphql.Query
 
 class HttpServer {
   companion object {
     const val PORT = 2026
   }
 
-  private val busyProcessIds = MutableStateFlow(emptySet<String>())
-  val atLeastOneBusy: Flow<Boolean> = busyProcessIds.map { it.isNotEmpty() }
+  val busyProcesses = MutableStateFlow(emptySet<Process>())
 
   private val executableSchema: ExecutableSchema by lazy {
     NyanExecutableSchemaBuilder()
-      .queryRoot { Query(busyProcessIds) }
-      .mutationRoot { Mutation(busyProcessIds) }
+      .queryRoot { Query(busyProcesses) }
+      .mutationRoot { Mutation(busyProcesses) }
       .build()
   }
 
-  suspend fun start(): Boolean {
+  suspend fun start(onFailure: (Throwable) -> Unit) {
     logd("Starting http server on port $PORT")
+    val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+      onFailure(throwable)
+    }
     try {
-      embeddedServer(
-        factory = CIO,
-        port = PORT,
-        module = {
-          install(DefaultHeaders) {
-            header(HttpHeaders.Server, "nyan/${VERSION}")
-          }
-          apolloModule(executableSchema)
-          apolloSandboxModule()
-        },
-      ).startSuspend(wait = true)
+      withContext(exceptionHandler) {
+        embeddedServer(
+          factory = CIO,
+          port = PORT,
+          parentCoroutineContext = exceptionHandler,
+          module = {
+            install(DefaultHeaders) {
+              header(HttpHeaders.Server, "nyan/${VERSION}")
+            }
+            apolloModule(executableSchema)
+            apolloSandboxModule()
+          },
+        ).startSuspend(wait = true)
+      }
     } catch (e: Exception) {
       if (e is CancellationException) {
         currentCoroutineContext().ensureActive()
       }
-      logd(e, "Failed to start http server on port $PORT")
-      return false
+      onFailure(e)
     }
-    return true
   }
 }

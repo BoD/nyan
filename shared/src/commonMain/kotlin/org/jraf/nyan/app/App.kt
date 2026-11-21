@@ -51,7 +51,11 @@ class App {
 
   private var busyAnimationJob: Job? = null
 
-  private fun startBusyAnimation() {
+  private suspend fun startBusyAnimation(busyProcesses: Set<Process>) {
+    withContext(Dispatchers.Main) {
+      tray.setMenuItems(busyProcesses.map { it.description ?: it.processId.value })
+    }
+
     if (busyAnimationJob != null) return
     busyAnimationJob = coroutineScope.launch {
       while (true) {
@@ -71,6 +75,7 @@ class App {
 
     withContext(Dispatchers.Main) {
       tray.setImage(settings.idleImage.toString())
+      tray.setMenuItems(emptyList())
     }
   }
 
@@ -80,17 +85,16 @@ class App {
     val application = PlatformApplication()
     coroutineScope.launch {
       launch(Dispatchers.IO) {
-        val ok = httpServer.start()
-        if (!ok) {
-          logw("Could not start server, exiting")
+        httpServer.start {
+          logw(it, "Could not start server, exiting")
           exitProcess(-1)
         }
       }
 
-      httpServer.atLeastOneBusy.collect { atLeastOneBusy ->
-        logd("atLeastOneBusy=$atLeastOneBusy")
-        if (atLeastOneBusy) {
-          startBusyAnimation()
+      httpServer.busyProcesses.collect { busyProcesses ->
+        logd("busyProcesses=$busyProcesses")
+        if (busyProcesses.isNotEmpty()) {
+          startBusyAnimation(busyProcesses)
         } else {
           stopBusyAnimation()
         }

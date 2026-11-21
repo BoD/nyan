@@ -27,6 +27,7 @@ package org.jraf.nyan.tray
 
 interface Tray {
   fun setImage(absolutePath: String)
+  fun setMenuItems(items: List<String>)
 }
 
 expect fun Tray(): Tray

@@ -2,27 +2,44 @@
 set -euo pipefail
 
 usage() {
-  printf 'Usage: %s command [args...]\n       %s --busy <id>\n       %s --idle <id>\n' "$0" "$0" "$0" >&2
+  printf 'Usage: %s command [args...]\n       %s --busy <id> [--description <text>]\n       %s --idle <id>\n' "$0" "$0" "$0" >&2
   exit 2
 }
 
 set_state() {
   local state="$1"
   local id="$2"
+  local query="mutation Set${state}Mutation(\$processId: ProcessId!) { set${state}(processId: \$processId) { processId } }"
+  local -a variables=(--arg processId "$id")
+  if (($# == 3)); then
+    query='mutation SetBusyMutation($processId: ProcessId!, $description: String) { setBusy(processId: $processId, description: $description) { processId } }'
+    variables+=(--arg description "$3")
+  fi
+
+  local body
+  body="$(jq -cn --arg query "$query" "${variables[@]}" \
+    '{query: $query, variables: ($ARGS.named | del(.query))}')" || return
+
   curl \
     --silent \
     --output /dev/null \
     --request POST \
     --header 'content-type: application/json' \
     --url 'http://localhost:2026/graphql' \
-    --data "{\"query\": \"mutation Set${state}Mutation { set${state}(processId: \\\"$id\\\") { processId } }\"}"
+    --data "$body"
 }
 
 (($# > 0)) || usage
 case "$1" in
   --busy)
-    (($# == 2)) || usage
-    set_state Busy "$2"
+    case "$#" in
+      2) set_state Busy "$2" ;;
+      4)
+        [[ "$3" == --description ]] || usage
+        set_state Busy "$2" "$4"
+        ;;
+      *) usage ;;
+    esac
     exit 0
     ;;
   --idle)
@@ -44,7 +61,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if ! set_state Busy "$id"; then
+if ! set_state Busy "$id" "$*"; then
   printf 'Failed to set busy for %s\n' "$id" >&2
 fi
 
