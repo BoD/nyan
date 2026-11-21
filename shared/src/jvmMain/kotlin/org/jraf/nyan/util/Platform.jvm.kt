@@ -32,3 +32,7 @@ actual fun getHomeDirectory(): String {
 actual fun exitProcess(status: Int): Nothing {
   TODO("Not yet implemented")
 }
+
+actual fun getResourcePath(resourceName: String): String? {
+  TODO("Not yet implemented")
+}

@@ -27,13 +27,40 @@ package org.jraf.nyan.settings
 
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
+import org.jraf.klibnanolog.logw
 import org.jraf.nyan.util.getHomeDirectory
-
+import org.jraf.nyan.util.getResourcePath
 
 private val busyImageRegex = Regex("busy-\\d{2}\\.png")
 
 class Settings {
-  private val imageDirectory by lazy { Path(getHomeDirectory(), ".nyan", "images") }
+  private val settingsDirectory = Path(getHomeDirectory(), ".nyan")
+  private val settingsImageDirectory = Path(settingsDirectory, "images")
+
+  private val resourcesImageDirectory by lazy {
+    val imageResourcePath = getResourcePath("images")
+    // Dev mode only: fallback to etc/images in the project directory if the resource is not found (e.g. when running from the IDE)
+    if (imageResourcePath == null) {
+      logw("Resource 'images' not found, fallback to etc/images in the project directory")
+      Path("../etc/images")
+    } else {
+      Path(imageResourcePath)
+    }
+  }
+
+  private val imageDirectory by lazy {
+    if (SystemFileSystem.exists(settingsImageDirectory)) {
+      check(SystemFileSystem.exists(Path(settingsImageDirectory, "idle.png"))) {
+        "Settings image directory '$settingsImageDirectory' exists but does not contain 'idle.png'"
+      }
+      check(SystemFileSystem.list(settingsImageDirectory).any { it.name.matches(busyImageRegex) }) {
+        "Settings image directory '$settingsImageDirectory' exists but does not contain any busy images"
+      }
+      settingsImageDirectory
+    } else {
+      resourcesImageDirectory
+    }
+  }
 
   val idleImage: Path by lazy { Path(imageDirectory, "idle.png") }
 

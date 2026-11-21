@@ -28,3 +28,5 @@ package org.jraf.nyan.util
 expect fun getHomeDirectory(): String
 
 expect fun exitProcess(status: Int): Nothing
+
+expect fun getResourcePath(resourceName: String): String?

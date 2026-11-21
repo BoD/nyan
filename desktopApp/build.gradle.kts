@@ -36,4 +36,14 @@ tasks.register<Sync>("bundleMacApp") {
     rename { "nyan-server" }
     filePermissions { unix("755") }
   }
+
+  from(rootProject.layout.projectDirectory.dir("etc/images")) {
+    include("*.png")
+    into("Contents/Resources/images")
+  }
+
+  from(rootProject.layout.projectDirectory.dir("etc/scripts")) {
+    into("Contents/Resources/scripts")
+    filePermissions { unix("755") }
+  }
 }
