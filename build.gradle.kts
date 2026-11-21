@@ -8,4 +8,4 @@ version = "1.0.0"
 
 // `./gradlew refreshVersions` to update dependencies
 // `./gradlew apolloDumpSchema` to dump the GraphQL schema
-// `./gradlew bundleMacApp` to bundle the MacOS app. Results in desktopApp/build/macApp/Nyan.app
+// `./gradlew bundleMacosAppArm64` or `:desktopApp:bundleMacosAppX64` to bundle the macOS app.

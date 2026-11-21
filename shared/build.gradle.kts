@@ -23,7 +23,11 @@ val generateVersionKtTask: TaskProvider<Task> = tasks.register("generateVersionK
 
 kotlin {
   jvm()
+
   macosArm64()
+
+  @Suppress("DEPRECATION")
+  macosX64()
 
   sourceSets {
     commonMain {

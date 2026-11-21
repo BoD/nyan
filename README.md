@@ -77,7 +77,7 @@ with this app.
 
 ## Building
 
-Build the app with `./gradlew :desktopApp:bundleMacApp`.
+Build the app with `./gradlew bundleMacosAppArm64`.
 
 ## Licence
 

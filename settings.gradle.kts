@@ -2,6 +2,7 @@ rootProject.name = "nyan"
 
 pluginManagement {
   repositories {
+    mavenLocal()
     mavenCentral()
     gradlePluginPortal()
     maven("https://central.sonatype.com/repository/maven-snapshots/")
@@ -11,6 +12,7 @@ pluginManagement {
 dependencyResolutionManagement {
   @Suppress("UnstableApiUsage")
   repositories {
+    mavenLocal()
     mavenCentral()
     google()
     maven("https://central.sonatype.com/repository/maven-snapshots/")
