@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if (($# == 0)); then
+  printf 'Usage: %s command [args...]\n' "$0" >&2
+  exit 2
+fi
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+id="$(uuidgen)"
+
+cleanup() {
+  local status=$?
+  trap - EXIT
+  if ! "$script_dir/set-idle" "$id" >/dev/null; then
+    printf 'Failed to set idle for %s\n' "$id" >&2
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
+
+if ! "$script_dir/set-busy" "$id" >/dev/null; then
+  printf 'Failed to set busy for %s\n' "$id" >&2
+fi
+
+"$@"

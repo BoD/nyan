@@ -28,3 +28,7 @@ package org.jraf.nyan.util
 actual fun getHomeDirectory(): String {
   TODO("Not yet implemented")
 }
+
+actual fun exitProcess(status: Int): Nothing {
+  TODO("Not yet implemented")
+}

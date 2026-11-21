@@ -26,5 +26,5 @@ import org.jraf.nyan.app.App
  */
 
 fun main(av: Array<String>) {
-  App().start()
+  App().start(av)
 }

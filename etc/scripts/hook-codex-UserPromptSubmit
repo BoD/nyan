@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+payload="$(cat)"
+
+# See https://github.com/openai/codex/issues/18541
+if jq -e '.transcript_path == null' >/dev/null <<<"$payload"; then
+  exit 0
+fi
+
+turn_id="$(jq -er '.turn_id' <<<"$payload")"
+"$script_dir/set-busy" "$turn_id"

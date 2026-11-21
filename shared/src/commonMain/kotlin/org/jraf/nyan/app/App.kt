@@ -35,15 +35,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jraf.klibnanolog.logd
-import org.jraf.nyan.net.Server
+import org.jraf.klibnanolog.logw
+import org.jraf.nyan.http.HttpServer
 import org.jraf.nyan.settings.Settings
 import org.jraf.nyan.tray.Tray
+import org.jraf.nyan.util.exitProcess
 import kotlin.time.Duration.Companion.milliseconds
 
 class App {
   private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-  private val server = Server()
+  private val httpServer = HttpServer()
   private val settings = Settings()
   private val tray = Tray()
 
@@ -63,31 +65,34 @@ class App {
     }
   }
 
-  private fun stopBusyAnimation() {
+  private suspend fun stopBusyAnimation() {
     busyAnimationJob?.cancel()
     busyAnimationJob = null
+
+    withContext(Dispatchers.Main) {
+      tray.setImage(settings.idleImage.toString())
+    }
   }
 
-  fun start() {
+  fun start(av: Array<String>) {
     logd("Hello, World!")
 
     val application = PlatformApplication()
-    tray.show()
-
     coroutineScope.launch {
       launch(Dispatchers.IO) {
-        server.start()
+        val ok = httpServer.start()
+        if (!ok) {
+          logw("Could not start server, exiting")
+          exitProcess(-1)
+        }
       }
 
-      server.atLeastOneConnected.collect { atLeastOneConnected ->
-        logd("atLeastOneConnected=$atLeastOneConnected")
-        if (atLeastOneConnected) {
+      httpServer.atLeastOneBusy.collect { atLeastOneBusy ->
+        logd("atLeastOneBusy=$atLeastOneBusy")
+        if (atLeastOneBusy) {
           startBusyAnimation()
         } else {
           stopBusyAnimation()
-          withContext(Dispatchers.Main) {
-            tray.setImage(settings.idleImage.toString())
-          }
         }
       }
     }
@@ -97,6 +102,7 @@ class App {
       application.run()
     } finally {
       coroutineScope.cancel()
+      exitProcess(-1)
     }
   }
 }

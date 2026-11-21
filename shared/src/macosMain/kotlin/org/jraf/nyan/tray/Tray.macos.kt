@@ -45,7 +45,6 @@ actual fun Tray(): Tray {
     init {
       val statusBar = NSStatusBar.systemStatusBar
       statusItem = statusBar.statusItemWithLength(NSVariableStatusItemLength)
-      statusItem!!.visible = false
 
       val menu = NSMenu()
       val quitItem = NSMenuItem(
@@ -55,14 +54,6 @@ actual fun Tray(): Tray {
       )
       menu.addItem(quitItem)
       statusItem!!.menu = menu
-    }
-
-    override fun show() {
-      statusItem!!.visible = true
-    }
-
-    override fun hide() {
-      statusItem!!.visible = false
     }
 
     override fun setImage(absolutePath: String) {

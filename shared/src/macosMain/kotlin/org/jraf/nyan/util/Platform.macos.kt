@@ -40,3 +40,7 @@ actual fun getHomeDirectory(): String {
     getenv("HOME")?.toKString() ?: getpwuid(getuid())!!.pointed.pw_dir!!.toKString()
   }
 }
+
+actual fun exitProcess(status: Int): Nothing {
+  kotlin.system.exitProcess(status)
+}

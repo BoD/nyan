@@ -1,0 +1,32 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+scalar ProcessId
+
+type Error implements Result {
+  processId: ProcessId!
+
+  message: String!
+}
+
+type Mutation {
+  setBusy(processId: ProcessId!): Result!
+
+  setIdle(processId: ProcessId!): Result!
+}
+
+type Query {
+  busyProcessIds: [ProcessId!]!
+
+  isBusy(processId: ProcessId!): Boolean!
+}
+
+type Success implements Result {
+  processId: ProcessId!
+}
+
+interface Result {
+  processId: ProcessId!
+}

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if (($# == 0)); then
+  printf 'Usage: %s command [args...]\n' "$0" >&2
+  exit 2
+fi
+
+curl \
+  --silent \
+  --output /dev/null \
+  --request POST \
+  --header 'content-type: application/json' \
+  --url 'http://localhost:2026/graphql' \
+  --data "{\"query\": \"mutation SetBusyMutation { setBusy(processId: \\\"$1\\\") { processId } }\"}"

@@ -26,8 +26,6 @@
 package org.jraf.nyan.tray
 
 interface Tray {
-  fun show()
-  fun hide()
   fun setImage(absolutePath: String)
 }
 
