@@ -39,7 +39,9 @@ This will show the animated Nyan Cat for the duration of the command.
 
 ### Codex integration
 
-The bundled scripts include hooks for Codex. To configure them, edit the `~/.codex/hooks.json` file and add the following:
+The bundled scripts include hooks for Codex. To configure them, edit the `~/.codex/hooks.json` file and add the following.
+
+Note: `jq` needs to be installed.
 
 ```json
 {
@@ -63,12 +65,76 @@ The bundled scripts include hooks for Codex. To configure them, edit the `~/.cod
           }
         ]
       }
+    ],
+    "Interrupt": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Applications/Nyan.app/Contents/Resources/scripts/nyan-hook-codex-Stop"
+          }
+        ]
+      }
     ]
   }
 }
 ```
 
-You'll also need to approve the hooks in the Codex settings.
+You'll also need to review/trust the hooks in the Codex settings.
+
+### Claude Code integration
+
+Add these entries to `~/.claude/settings.json` to enable the hooks for all your projects. If you already have a `hooks` section, append each
+hook group to the corresponding event array.
+
+Note: `jq` needs to be installed.
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Applications/Nyan.app/Contents/Resources/scripts/nyan-hook-claude-UserPromptSubmit"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Applications/Nyan.app/Contents/Resources/scripts/nyan-hook-claude-Stop"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Applications/Nyan.app/Contents/Resources/scripts/nyan-hook-claude-Stop"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Applications/Nyan.app/Contents/Resources/scripts/nyan-hook-claude-Stop"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
 ## See also
 

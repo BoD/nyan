@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+session_id="$(jq -er '.session_id | strings | select(length > 0)')" || exit 1
+"$script_dir/nyan" --busy "claude-$session_id" --description 'Claude Code' || exit 1
