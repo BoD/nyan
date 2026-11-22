@@ -4,8 +4,8 @@ plugins {
   alias(libs.plugins.apollo.execution).apply(false)
 }
 
-version = "1.0.0"
+version = "1.0.1-SNAPSHOT"
 
 // `./gradlew refreshVersions` to update dependencies
 // `./gradlew apolloDumpSchema` to dump the GraphQL schema
-// `./gradlew bundleMacosAppArm64` or `:desktopApp:bundleMacosAppX64` to bundle the macOS app.
+// `./gradlew packageMacosAppArm64` or `:desktopApp:packageMacosAppX64` to create the macOS app installer

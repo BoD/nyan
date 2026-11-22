@@ -47,7 +47,7 @@ class App {
 
   private val httpServer = HttpServer()
   private val settings = Settings()
-  private val tray = Tray()
+  private lateinit var tray: Tray
 
   private var busyAnimationJob: Job? = null
 
@@ -83,6 +83,8 @@ class App {
     logd("Hello, World!")
 
     val application = PlatformApplication()
+    tray = Tray()
+
     coroutineScope.launch {
       launch(Dispatchers.IO) {
         httpServer.start {
