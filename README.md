@@ -20,8 +20,8 @@ That's it!
 
 ## Download / Install
 
-- Get the [latest app](https://github.com/BoD/nyan/releases/latest) and put it in your `/Applications` folder.
-- Add `/Applications/Nyan.app/Contents/Resources/scripts` to your shell's `PATH` to be able to call the `nyan` tool.
+Run the `.pkg` installer for your Mac's architecture from the [latest release](https://github.com/BoD/nyan/releases/latest). It installs
+`Nyan.app` in `/Applications` and makes `nyan` available through `/usr/local/bin`.
 
 ## Run and use
 
@@ -77,7 +77,8 @@ with this app.
 
 ## Building
 
-Build the app with `./gradlew bundleMacosAppArm64`.
+- Build the app with `./gradlew bundleMacosAppArm64`.
+- Build the installers with `./gradlew packageMacosApp`.
 
 ## Licence
 

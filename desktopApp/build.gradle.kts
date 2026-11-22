@@ -1,4 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
+import java.nio.file.Files
+import java.nio.file.Path
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -29,8 +31,11 @@ kotlin {
 
 fun registerMacAppBundle(architecture: String) {
   val architectureName = architecture.lowercase()
+  val version = rootProject.version.toString()
   val appBundle = layout.buildDirectory.dir("macosApp/$architectureName/Nyan.app")
-  val installerPackage = layout.buildDirectory.file("macosApp/$architectureName/Nyan-$architectureName-${rootProject.version}.pkg")
+  val installerPackage = layout.buildDirectory.file("macosApp/$architectureName/Nyan-$architectureName-$version.pkg")
+  val installerRoot = layout.buildDirectory.dir("macosInstaller/$architectureName")
+  val installerComponents = layout.projectDirectory.file("src/macosMain/installer-components.plist")
   val bundleTask = tasks.register<Sync>("bundleMacosApp$architecture") {
     group = LifecycleBasePlugin.BUILD_GROUP
     description = "Bundles the macOS $architecture app. Results in build/macosApp/$architectureName/Nyan.app"
@@ -64,16 +69,37 @@ fun registerMacAppBundle(architecture: String) {
     }
   }
 
+  val stageInstaller = tasks.register<Sync>("stageMacosInstaller$architecture") {
+    dependsOn(bundleTask)
+    into(installerRoot)
+    from(appBundle) {
+      into("Applications/Nyan.app")
+    }
+    doLast {
+      val binDirectory = installerRoot.get().asFile.toPath().resolve("usr/local/bin")
+      Files.createDirectories(binDirectory)
+      val commandLink = binDirectory.resolve("nyan")
+      Files.deleteIfExists(commandLink)
+      Files.createSymbolicLink(commandLink, Path.of("../../../Applications/Nyan.app/Contents/Resources/scripts/nyan"))
+    }
+  }
+
   tasks.register<Exec>("packageMacosApp$architecture") {
     group = "distribution"
-    description = "Creates an unsigned macOS $architecture installer at build/macosApp/$architectureName/Nyan-$architectureName.pkg"
-    dependsOn(bundleTask)
-    inputs.dir(appBundle)
+    description =
+      "Creates an unsigned macOS $architecture installer at build/macosApp/$architectureName/Nyan-$architectureName-$version.pkg"
+    dependsOn(stageInstaller)
+    inputs.dir(installerRoot)
+    inputs.file(installerComponents)
     outputs.file(installerPackage)
     commandLine(
-      "/usr/bin/productbuild",
-      "--component", appBundle.get().asFile.absolutePath,
-      "/Applications", installerPackage.get().asFile.absolutePath,
+      "/usr/bin/pkgbuild",
+      "--root", installerRoot.get().asFile.absolutePath,
+      "--component-plist", installerComponents.asFile.absolutePath,
+      "--identifier", "org.jraf.nyan",
+      "--version", version,
+      "--install-location", "/",
+      installerPackage.get().asFile.absolutePath,
     )
   }
 }
