@@ -136,6 +136,37 @@ Note: `jq` needs to be installed.
 }
 ```
 
+### Mistral Vibe integration
+
+Append these entries to `~/.vibe/hooks.toml` and restart Vibe.
+
+Note: `jq` needs to be installed.
+
+```toml
+[[hooks]]
+name = "nyan-busy"
+type = "pre_agent"
+match = "main"
+command = "/Applications/Nyan.app/Contents/Resources/scripts/nyan-hook-vibe-pre_agent"
+
+[[hooks]]
+name = "nyan-idle"
+type = "post_agent"
+match = "main"
+command = "/Applications/Nyan.app/Contents/Resources/scripts/nyan-hook-vibe-post_agent"
+
+[[hooks]]
+name = "nyan-idle-on-failure"
+type = "notification"
+match = "turn_failed"
+command = "/Applications/Nyan.app/Contents/Resources/scripts/nyan-hook-vibe-post_agent"
+
+[[hooks]]
+name = "nyan-idle-on-session-end"
+type = "session_end"
+command = "/Applications/Nyan.app/Contents/Resources/scripts/nyan-hook-vibe-post_agent"
+```
+
 ## See also
 
 [This plugin](https://github.com/BoD/NyanTrayIntelliJPlugin) for IntelliJ (and Android Studio, and other IntelliJ based IDEs) integrates
