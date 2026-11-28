@@ -25,8 +25,10 @@
 
 package org.jraf.nyan.util
 
-expect fun getHomeDirectory(): String
+import kotlinx.io.files.Path
+
+expect fun getHomeDirectory(): Path
 
 expect fun exitProcess(status: Int): Nothing
 
-expect fun getResourcePath(resourceName: String): String?
+expect fun getResourcePath(resourceName: String): Path?

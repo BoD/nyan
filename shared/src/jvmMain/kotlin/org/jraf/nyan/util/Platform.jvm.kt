@@ -25,7 +25,9 @@
 
 package org.jraf.nyan.util
 
-actual fun getHomeDirectory(): String {
+import kotlinx.io.files.Path
+
+actual fun getHomeDirectory(): Path {
   TODO("Not yet implemented")
 }
 
@@ -33,6 +35,6 @@ actual fun exitProcess(status: Int): Nothing {
   TODO("Not yet implemented")
 }
 
-actual fun getResourcePath(resourceName: String): String? {
+actual fun getResourcePath(resourceName: String): Path? {
   TODO("Not yet implemented")
 }

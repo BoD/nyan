@@ -44,7 +44,7 @@ class Settings {
       logw("Resource 'images' not found, fallback to etc/images in the project directory")
       Path("../etc/images")
     } else {
-      Path(imageResourcePath)
+      imageResourcePath
     }
   }
 
